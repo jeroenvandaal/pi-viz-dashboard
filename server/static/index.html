@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Viz Dashboard</title>
+  <link rel="stylesheet" href="/styles.css">
+  <!-- Write token injected by the GET / route so the on-screen menu can persist
+       cycle/interval (and mirror board changes to the phone). Empty if served statically. -->
+  <script>window.__VIZ_TOKEN__ = "__TOKEN__";</script>
+</head>
+<body>
+  <div class="carousel">
+    <div class="track" id="track"></div>
+    <div class="nav" id="nav">
+      <div class="dots" id="dots"></div>
+      <div class="cycwrap" id="cycwrap"><div class="cycbar" id="cycbar"></div></div>
+    </div>
+    <div class="menu-burger" id="burger"><span></span><span></span><span></span></div>
+    <div class="menu" id="menu">
+      <div class="ttl">Display</div>
+      <div class="mrow"><span>Auto-cycle boards</span>
+        <div class="sw" id="cycleSw"><div class="kn"></div></div></div>
+      <div class="mrow"><span>Seconds / board</span>
+        <div class="step"><button id="secDown">−</button><span class="val" id="secVal">10s</span><button id="secUp">+</button></div></div>
+    </div>
+  </div>
+  <script type="module" src="/carousel.js"></script>
+  <script type="module" src="/menu.js"></script>
+</body>
+</html>

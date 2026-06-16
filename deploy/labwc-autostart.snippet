@@ -1,0 +1,11 @@
+# --- Viz Dashboard kiosk (appended to ~/.config/labwc/autostart) ---
+# Force the HDMI output on (best-effort; ignore if the tool/headless).
+command -v wlr-randr >/dev/null 2>&1 && wlr-randr --output HDMI-A-1 --on 2>/dev/null
+# Launch Chromium fullscreen kiosk pointed at the local dashboard, respawning if it dies.
+/usr/bin/lwrespawn /usr/bin/chromium \
+  --kiosk --app=http://localhost:8080 \
+  --noerrdialogs --disable-infobars --incognito \
+  --ozone-platform=wayland --start-fullscreen \
+  --password-store=basic --touch-events=enabled \
+  --disable-features=Translate --check-for-update-interval=31536000 \
+  --disable-session-crashed-bubble --hide-crash-restore-bubble &

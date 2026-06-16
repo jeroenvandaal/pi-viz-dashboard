@@ -1,0 +1,12 @@
+[Unit]
+Description=Viz feature scanner (extracts features from synced transcripts via claude -p)
+After=network-online.target viz-dashboard.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/pi-dashboard
+EnvironmentFile=%h/.config/viz-dashboard.env
+Environment=VIZ_PROJECTS_DIR=%h/claude-projects
+Environment=VIZ_PI_URL=http://localhost:8080
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+ExecStart=%h/pi-dashboard/server/.venv/bin/python -m scanner.scan

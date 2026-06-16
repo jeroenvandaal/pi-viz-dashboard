@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+"""Manually log a feature to the viz dashboard.
+Usage: log-feature <project> <title> [--summary TEXT] [--status done|in_progress]
+Reads VIZ_PI_URL and VIZ_TOKEN from the environment.
+"""
+import argparse, os, sys, httpx
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("project"); ap.add_argument("title")
+    ap.add_argument("--summary", default="")
+    ap.add_argument("--status", choices=["done", "in_progress"], default="in_progress")
+    a = ap.parse_args()
+    url = os.environ["VIZ_PI_URL"].rstrip("/") + "/api/features"
+    r = httpx.post(url, json={"items": [{
+        "project": a.project, "title": a.title, "summary": a.summary,
+        "status": a.status, "source": "manual",
+    }]}, headers={"X-Dashboard-Token": os.environ["VIZ_TOKEN"]}, timeout=20)
+    r.raise_for_status()
+    print(r.json())
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())

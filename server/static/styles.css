@@ -1,0 +1,93 @@
+* { box-sizing: border-box;
+    -webkit-user-select: none; -moz-user-select: none; user-select: none;
+    -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; background: #000; overflow: hidden; cursor: none; }
+body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; color: #e6edf3; }
+/* carousel / track / board replace the old .device wrapper.
+   NOTE: .carousel > .track uses a direct-child combinator to avoid colliding
+   with the existing metric progress-bar .track rule below (line 16). */
+.carousel { width: 100vw; height: 100vh; overflow: hidden; position: relative; background: #0a0e14; }
+.carousel > .track { display: flex; height: 100%; will-change: transform; }
+.board { flex: 0 0 100vw; height: 100%; display: flex; overflow: hidden; background: #0a0e14; }
+.q { flex: 0 0 29%; padding: 18px 20px; border-right: 1px solid #ffffff12;
+     background: linear-gradient(180deg,#0d1320,#0a0e14); display: flex; flex-direction: column; }
+.q .hd { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: #8b949e; margin-bottom: 14px; }
+.q .hd b { color: #f0883e; }
+.metric { margin-bottom: 15px; }
+.metric .top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+.metric .name { font-size: 13px; color: #c9d1d9; }
+.metric .val { font-size: 13px; font-weight: 600; }
+.metric .sub { font-size: 10px; color: #6e7681; }
+.track { height: 11px; background: #161b22; border-radius: 6px; overflow: hidden; }
+.fill { height: 100%; border-radius: 6px; transition: width .4s ease; }
+.green { background: linear-gradient(90deg,#2ea043,#3fb950); }
+.amber { background: linear-gradient(90deg,#bb8009,#f0883e); }
+.red   { background: linear-gradient(90deg,#bd2c00,#f85149); }
+/* Right-align updated + live with a separator, leaving the lower-left for the burger. */
+.clock { margin-top: auto; font-size: 10px; color: #6e7681; display: flex; justify-content: flex-end; gap: 8px; }
+.clock .sep { opacity: .4; }
+.clock.stale .live { color: #f85149; }
+.f { flex: 1; padding: 16px 20px; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.f .hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex: 0 0 auto; }
+.f .hd .t { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: #8b949e; }
+.f .hd .t b { color: #3fb950; }
+.counts { font-size: 11px; color: #8b949e; }
+.counts .a { color: #f0883e; } .counts .d { color: #3fb950; }
+.scrollwrap { position: relative; flex: 1 1 auto; min-height: 0; }
+.list { height: 100%; overflow-y: auto; overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch; scrollbar-width: none;
+        touch-action: pan-y; }
+.list::-webkit-scrollbar { width: 0; height: 0; display: none; }
+.sbthumb { position: absolute; right: 1px; width: 4px; border-radius: 3px; background: #8b949e;
+           opacity: 0; transition: opacity .35s ease; pointer-events: none; }
+.scrollwrap.scrolling .sbthumb { opacity: .75; }
+.row { display: flex; align-items: center; gap: 11px; padding: 0 12px 0 10px; margin-bottom: 7px;
+       height: 46px; flex: 0 0 46px; background: #10151d; border: 1px solid #ffffff0d;
+       border-radius: 8px; }
+.row:last-child { margin-bottom: 0; }
+.row.active { border-color: #f0883e44; background: #1a1408; }
+.badge { flex: 0 0 auto; width: 84px; font-size: 10px; font-weight: 600; letter-spacing: .04em;
+         text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+.badge .pip { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.badge.ip { color: #f0883e; } .badge.ip .pip { background: #f0883e; box-shadow: 0 0 7px #f0883e; }
+.badge.dn { color: #3fb950; } .badge.dn .pip { background: #3fb950; }
+.meta { min-width: 0; flex: 1; }
+.meta .title { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.meta .desc { font-size: 10px; color: #7d8590; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.proj { flex: 0 0 auto; font-size: 9px; color: #8b949e; background: #21262d; border-radius: 5px; padding: 2px 7px; }
+.when { flex: 0 0 auto; font-size: 10px; color: #6e7681; width: 40px; text-align: right; }
+.nav { position: absolute; left: 0; right: 0; bottom: 8px; display: flex; flex-direction: column;
+       align-items: center; gap: 5px; opacity: 0; transition: opacity .4s ease; pointer-events: none; z-index: 4; }
+.nav.show { opacity: 1; }
+.dots { display: flex; gap: 7px; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: #ffffff33; transition: all .3s; }
+.dot.on { background: #e6edf3; transform: scale(1.25); }
+.cycwrap { width: 120px; height: 2px; background: #ffffff1a; border-radius: 2px; overflow: hidden; opacity: 0; transition: opacity .3s; }
+.cycwrap.on { opacity: 1; }
+.cycbar { height: 100%; width: 0; background: #58a6ff; }
+/* Bigger touch target + a resting opacity that's discoverable on a touchscreen
+   (there is no :hover on touch, so .18 was effectively invisible). Padding enlarges
+   the tap area without enlarging the bars. */
+.menu-burger { position: absolute; left: 10px; bottom: 8px; width: 26px; height: 20px; padding: 8px; cursor: pointer;
+               display: flex; flex-direction: column; justify-content: space-between; opacity: .4;
+               transition: opacity .3s; z-index: 8; touch-action: manipulation; }
+.menu-burger.open { opacity: 1; }
+.carousel:hover .menu-burger { opacity: .7; }
+.menu-burger:active, .menu-burger:hover { opacity: 1; }
+.menu-burger span { height: 2px; background: #e6edf3; border-radius: 2px; }
+.menu { position: absolute; left: 14px; bottom: 44px; width: 230px; background: #0d1320f2;
+        border: 1px solid #30363d; border-radius: 11px; padding: 12px 14px; box-shadow: 0 10px 30px #000a;
+        backdrop-filter: blur(6px); opacity: 0; transform: translateY(10px); pointer-events: none;
+        transition: all .25s ease; z-index: 7; }
+.menu.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.menu .ttl { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #8b949e; margin-bottom: 10px; }
+.mrow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; font-size: 13px; }
+.mrow:last-child { margin-bottom: 0; }
+.sw { width: 42px; height: 24px; border-radius: 13px; background: #30363d; position: relative; cursor: pointer; transition: background .2s; }
+.sw.on { background: #2ea043; }
+.sw .kn { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: left .2s; }
+.sw.on .kn { left: 20px; }
+.step { display: flex; align-items: center; gap: 8px; }
+.step button { width: 26px; height: 26px; border-radius: 7px; background: #161b22; color: #e6edf3; border: 1px solid #30363d; cursor: pointer; font-size: 15px; line-height: 1; }
+.step button:hover { border-color: #58a6ff; }
+.step .val { min-width: 42px; text-align: center; font-variant-numeric: tabular-nums; color: #58a6ff; font-weight: 600; }

@@ -1,0 +1,12 @@
+.superpowers/
+*.db
+state.json
+.env
+secrets/
+__pycache__/
+*.pyc
+.viz-token.local
+*.local
+.venv/
+*/.venv/
+.pytest_cache/
