@@ -65,16 +65,14 @@ body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; color: #e6edf
 .cycwrap { width: 120px; height: 2px; background: #ffffff1a; border-radius: 2px; overflow: hidden; opacity: 0; transition: opacity .3s; }
 .cycwrap.on { opacity: 1; }
 .cycbar { height: 100%; width: 0; background: #58a6ff; }
-/* Bigger touch target + a resting opacity that's discoverable on a touchscreen
-   (there is no :hover on touch, so .18 was effectively invisible). Padding enlarges
-   the tap area without enlarging the bars. */
-.menu-burger { position: absolute; left: 10px; bottom: 8px; width: 26px; height: 20px; padding: 8px; cursor: pointer;
-               display: flex; flex-direction: column; justify-content: space-between; opacity: .4;
+/* Clearly visible at rest (touch panel has no :hover). content-box + gap so the three
+   bars keep their spacing — under the global border-box, a fixed height + padding was
+   crushing the bars into a single solid block. Padding is the generous tap target. */
+.menu-burger { position: absolute; left: 14px; bottom: 12px; width: 30px; padding: 10px; cursor: pointer;
+               box-sizing: content-box; display: flex; flex-direction: column; gap: 6px; opacity: .85;
                transition: opacity .3s; z-index: 8; touch-action: manipulation; }
-.menu-burger.open { opacity: 1; }
-.carousel:hover .menu-burger { opacity: .7; }
-.menu-burger:active, .menu-burger:hover { opacity: 1; }
-.menu-burger span { height: 2px; background: #e6edf3; border-radius: 2px; }
+.menu-burger.open, .menu-burger:active, .menu-burger:hover { opacity: 1; }
+.menu-burger span { display: block; width: 100%; height: 4px; background: #e6edf3; border-radius: 2px; }
 .menu { position: absolute; left: 14px; bottom: 44px; width: 230px; background: #0d1320f2;
         border: 1px solid #30363d; border-radius: 11px; padding: 12px 14px; box-shadow: 0 10px 30px #000a;
         backdrop-filter: blur(6px); opacity: 0; transform: translateY(10px); pointer-events: none;

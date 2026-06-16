@@ -93,6 +93,32 @@ There is **no API key** — extraction uses the Pi's own `claude login` via `cla
 write token lives in a gitignored `.viz-token.local` and is injected into the wall + `/control`
 pages at serve time (LAN-only).
 
+## Screen resolution
+
+The dashboard is **resolution-agnostic** — the layout uses viewport units (`100vw`/`100vh`),
+so it fills whatever the screen is set to. There is no resolution hardcoded in the app; you set
+it at the Pi's OS level.
+
+**Change the Pi's display mode (Raspberry Pi OS, Wayland/labwc — the default):**
+
+- **Temporary (this session):** list modes and set one with `wlr-randr`:
+  ```bash
+  wlr-randr                                   # show outputs (e.g. HDMI-A-1) + available modes
+  wlr-randr --output HDMI-A-1 --mode 1920x1080
+  ```
+- **GUI:** Preferences → *Screen Configuration*, or `raspi-config` → Display Options.
+- **Persistent / force a mode at boot:** add a `video=` line to `/boot/firmware/cmdline.txt`,
+  e.g. `video=HDMI-A-1:1920x1080@60`, (and/or set the KMS mode in `/boot/firmware/config.txt`).
+  Replace `HDMI-A-1` with your actual output name from `wlr-randr`.
+
+**Adapting the layout to a very different aspect ratio.** The board is tuned for an ultra-wide
+~1920×440 "strip" panel. It still renders at other sizes, but for a very different aspect ratio
+you may want to tweak, in `server/static/styles.css`:
+
+- the quota/feature split — `.q { flex: 0 0 29% }` (left column width),
+- the feature row height — `.row { height: 46px }`,
+- font sizes throughout (they're sized for the short strip).
+
 ## Tests
 
 ```bash
