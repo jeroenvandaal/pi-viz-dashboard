@@ -22,7 +22,7 @@ def test_post_and_list_features(client):
     ]}
     r = client.post("/api/features", json=payload, headers={"X-Dashboard-Token": "secret"})
     assert r.status_code == 200
-    assert r.json() == {"inserted": 2, "updated": 0}
+    assert r.json() == {"inserted": 2, "updated": 0, "suppressed": 0}
     rows = client.get("/api/features").json()["features"]
     assert [x["title"] for x in rows] == ["Email integration", "Prod deploy"]  # in_progress first
 
@@ -61,3 +61,20 @@ def test_control_page_served_with_token(client):
     assert "text/html" in r.headers["content-type"]
     assert "secret" in r.text          # token injected for client-side writes
     assert "Auto-cycle" in r.text
+
+def test_post_features_reports_suppressed(client):
+    tok = {"X-Dashboard-Token": "secret"}
+    client.post("/api/features", json={"items": [
+        {"project": "pi-dashboard", "title": "Metrics board spec", "status": "done", "source": "marker"}]}, headers=tok)
+    r = client.post("/api/features", json={"items": [
+        {"project": "pi-dashboard", "title": "metrics board implementation plan", "status": "in_progress"}]}, headers=tok)
+    assert r.json() == {"inserted": 0, "updated": 0, "suppressed": 1}
+
+def test_post_features_accepts_auto_closed(client):
+    tok = {"X-Dashboard-Token": "secret"}
+    client.post("/api/features", json={"items": [
+        {"project": "p", "title": "X", "status": "in_progress", "source": "marker"}]}, headers=tok)
+    client.post("/api/features", json={"items": [
+        {"project": "p", "title": "X", "status": "done", "source": "marker", "auto_closed": True}]}, headers=tok)
+    row = client.get("/api/features").json()["features"][0]
+    assert row["status"] == "done" and row["auto_closed"] == 1

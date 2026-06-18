@@ -5,7 +5,7 @@
   <key>Label</key><string>com.vizdashboard.projects-sync</string>
   <!-- Dumb file copy: ship Claude Code transcripts to the Pi. No API key, no LLM here.
        Uses a dedicated passphraseless key so it runs headlessly from launchd.
-       Destination is the `monitoring-pi` SSH alias (in ~/.ssh/config), NOT a hardcoded
+       Destination is the `YOUR_PI_HOST` SSH alias (in ~/.ssh/config), NOT a hardcoded
        IP — the Pi's DHCP lease changes on reboot, so following the alias means a future
        IP change is a one-line ~/.ssh/config edit instead of editing this plist. -->
   <key>ProgramArguments</key>
@@ -19,7 +19,7 @@
     <string>-e</string>
     <string>ssh -i /Users/YOUR_USERNAME/.ssh/viz_pi_sync -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new</string>
     <string>/Users/YOUR_USERNAME/.claude/projects/</string>
-    <string>monitoring-pi:claude-projects/</string>
+    <string>YOUR_PI_HOST:claude-projects/</string>
   </array>
   <key>StartInterval</key><integer>1200</integer>
   <key>RunAtLoad</key><true/>

@@ -47,9 +47,8 @@ def iter_sessions(projects_dir: Path = PROJECTS_DIR):
     projects_dir = Path(projects_dir)
     if not projects_dir.exists():
         return
-    for proj_dir in projects_dir.iterdir():
-        if not proj_dir.is_dir():
-            continue
-        label = project_label(proj_dir.name)
-        for jsonl in proj_dir.glob("*.jsonl"):
-            yield label, jsonl
+    # Recursive so both layouts work: the legacy flat `<encoded-project>/*.jsonl` and
+    # the multi-machine `<hostname>/<encoded-project>/*.jsonl`. The label always comes
+    # from the immediate parent dir (the encoded project path) in either case.
+    for jsonl in projects_dir.glob("**/*.jsonl"):
+        yield project_label(jsonl.parent.name), jsonl

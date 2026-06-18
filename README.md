@@ -77,7 +77,7 @@ Mac/Linux box where you run Claude Code.
 ```
 
 Full step-by-step (SSH alias, secret token, systemd units, kiosk, sync job) is in
-[`deploy/INSTALL.md`](deploy/INSTALL.md). Paths in `deploy/` use `YOUR_USERNAME`/`monitoring-pi`
+[`deploy/INSTALL.md`](deploy/INSTALL.md). Paths in `deploy/` use `YOUR_USERNAME`/`YOUR_PI_HOST`
 placeholders — adapt them to your setup.
 
 ## Configuration

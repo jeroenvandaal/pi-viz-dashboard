@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Deploy the viz dashboard to monitoring-pi. Run from the Mac (repo root).
-# Idempotent: safe to re-run. Requires SSH alias `monitoring-pi` and the Mac to be
+# Deploy the viz dashboard to YOUR_PI_HOST. Run from the Mac (repo root).
+# Idempotent: safe to re-run. Requires SSH alias `YOUR_PI_HOST` and the Mac to be
 # logged into Claude (Keychain item "Claude Code-credentials") for the creds bootstrap.
 set -euo pipefail
 
-PI="${PI_HOST:-monitoring-pi}"
+PI="${PI_HOST:-YOUR_PI_HOST}"
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TOKEN_FILE="$REPO_ROOT/.viz-token.local"
 cd "$REPO_ROOT"

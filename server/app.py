@@ -21,6 +21,10 @@ _quota_cache = {"data": None, "updated_at": None, "stale": True}
 POLL_OK_INTERVAL = 300
 POLL_ERR_INTERVAL = 600
 
+REAP_IDLE_HOURS = 12  # most features are LLM-discovered (no close marker); 12h idle ⇒ done
+REAP_INTERVAL = 1800  # 30 min; backstop only — hooks/scanner do the fast closes
+PRUNE_KEEP_DAYS = 14  # delete features idle >14d each reaper tick, to bound board size
+
 # Eagerly init DB so the table exists whether or not lifespan runs (e.g. in tests).
 db.init_db(DB_PATH)
 
@@ -35,15 +39,29 @@ async def _poll_quota():
             delay = POLL_ERR_INTERVAL
         await asyncio.sleep(delay)
 
+async def _reap_features():
+    while True:
+        try:
+            conn = db.connect(DB_PATH)
+            try:
+                db.reap_idle_features(conn, idle_hours=REAP_IDLE_HOURS)
+                db.prune_features(conn, keep_days=PRUNE_KEEP_DAYS)
+            finally:
+                conn.close()
+        except Exception:
+            pass
+        await asyncio.sleep(REAP_INTERVAL)
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     db.init_db(DB_PATH)
-    task = None
+    tasks = []
     if not os.environ.get("VIZ_NO_POLLER"):
-        task = asyncio.create_task(_poll_quota())
+        tasks.append(asyncio.create_task(_poll_quota()))
+        tasks.append(asyncio.create_task(_reap_features()))
     yield
-    if task:
-        task.cancel()
+    for t in tasks:
+        t.cancel()
 
 app = FastAPI(lifespan=lifespan)
 
@@ -66,7 +84,7 @@ def get_features():
 @app.post("/api/features", dependencies=[Depends(require_token)])
 def post_features(payload: dict):
     conn = db.connect(DB_PATH)
-    inserted = updated = 0
+    inserted = updated = suppressed = 0
     try:
         for item in payload.get("items", []):
             result = db.upsert_feature(
@@ -76,12 +94,15 @@ def post_features(payload: dict):
                 summary=item.get("summary"),
                 status=item.get("status", "in_progress"),
                 source=item.get("source", "scanner"),
+                auto_closed=item.get("auto_closed", False),
             )
             if result == "inserted":
                 inserted += 1
+            elif result == "suppressed":
+                suppressed += 1
             else:
                 updated += 1
-        return {"inserted": inserted, "updated": updated}
+        return {"inserted": inserted, "updated": updated, "suppressed": suppressed}
     finally:
         conn.close()
 
